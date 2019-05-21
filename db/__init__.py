@@ -1,42 +1,40 @@
-from sqlalchemy import create_engine, Column, String, Integer, Boolean, MetaData, Table, ForeignKey
+from sqlalchemy import create_engine, Column, String, Integer, Boolean, ForeignKey, LargeBinary
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.engine.base import Engine
-from sqlalchemy.orm.session import Session as ses_type
+from sqlalchemy.orm.session import Session as SesType
 
 
-engine: Engine = create_engine('sqlite:///db.db')
+engine: Engine = create_engine('mysql+pymysql://root:darkmoon@localhost/db')
 Session = sessionmaker(bind=engine)
-session: ses_type = Session()
-Base = declarative_base()
-meta = MetaData()
-meta.bind = engine
-
-with open('db.db', 'w') as file:
-    pass
+session: SesType = Session()
+Base = declarative_base(bind=engine)
 
 
-if not engine.dialect.has_table(engine, 'emaildata'):
-    Email = Table(
-        'emaildata', meta,
-        Column('email', String, primary_key=True),
-        Column('password', String, nullable=False),
-        Column('active', Boolean, default=False)
-    )
-    Email.create(bind=engine)
+class EmailData(Base):
+    __tablename__ = 'emaildata'
+    email = Column(String(50), primary_key=True)
+    password = Column(String(50), nullable=False)
+    active = Column(Boolean, default=False)
 
-if not engine.dialect.has_table(engine, 'rowbuffer'):
-    RowBuffer = Table(
-        'rowbuffer', meta,
-        Column('id', Integer, primary_key=True),
-        Column('email', String, ForeignKey('emaildata.email'), nullable=False),
-        Column('uid', String, nullable=False),
-        Column('msg', String, nullable=False)
-    )
-    RowBuffer.create(bind=engine)
+    def __repr__(self):
+        return f'{self.email} : {self.password} active: {self.active}'
 
 
+class RowBuffer(Base):
+    __tablename__ = 'rowbuffer'
+    id = Column(Integer, primary_key=True)
+    email = Column(String(50), ForeignKey('emaildata.email'))
+    uid = Column(String(50), nullable=False)
+    msg = Column(LargeBinary, nullable=False)
+    status = Column(String(50), default='add', nullable=False)
+
+    def __repr__(self):
+        return f'buff id {self.id} for {self.email} : {self.uid} status {self.status}'
 
 
+Base.metadata.create_all()
 
+
+print(session.query(RowBuffer).all())
 
