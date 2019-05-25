@@ -3,9 +3,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm.session import Session as SesType
+import config
 
 
-engine: Engine = create_engine('mysql+pymysql://root:darkmoon@localhost/db')
+engine: Engine = create_engine(config.DB_URL)
 Session = sessionmaker(bind=engine)
 session: SesType = Session()
 Base = declarative_base(bind=engine)
@@ -34,7 +35,4 @@ class RowBuffer(Base):
 
 
 Base.metadata.create_all()
-
-
-print(session.query(RowBuffer).all())
 

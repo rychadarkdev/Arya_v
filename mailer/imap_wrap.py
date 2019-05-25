@@ -2,7 +2,10 @@ import imaplib
 import email
 from typing import Optional
 import logging
-
+from db import mail as maildb
+from db import msgbuffer
+import config
+import db
 
 def connect(host: str, port: int) -> Optional[imaplib.IMAP4_SSL]:
     try:
@@ -57,10 +60,8 @@ def del_msg(uid: str, con: imaplib.IMAP4_SSL) -> Optional[bool]:
         logging.error(error)
 
 
-def save_ta_db(uid: str, msg):
-    print('UID:', uid)
-    print(msg)
-    return True
+def save_to_db(mail: str, uid: str, msg):
+    return msgbuffer.add(mail=mail, uid=uid, msg=msg)
 
 
 def load_and_save(host: str, port: int, mail: str, password: str) -> Optional[bool]:
@@ -73,7 +74,7 @@ def load_and_save(host: str, port: int, mail: str, password: str) -> Optional[bo
     if not isinstance(msgs, dict):
         return
     for uid, msg in msgs.items():
-        if save_ta_db(uid=uid, msg=msg) is not True:
+        if save_to_db(mail=mail, uid=uid, msg=msg) is not True:
             continue
         if copy(uid=uid, con=con) is not True:
             continue
@@ -81,4 +82,12 @@ def load_and_save(host: str, port: int, mail: str, password: str) -> Optional[bo
             continue
 
 
-load_and_save(host='imap.yandex.ru', port=993, mail='hrdhfjdxd@yandex.ru', password='sqAr83cGdrg9ymi')
+for mail in maildb.get_all():
+    load_and_save(
+        host=config.IMAP_HOST,
+        port=config.IMAP_PORT,
+        mail=mail,
+        password=maildb.get_pass(mail)
+    )
+
+print(db.session.query(db.RowBuffer).all())
