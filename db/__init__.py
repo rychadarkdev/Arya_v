@@ -24,11 +24,10 @@ class EmailData(Base):
 
 class RowBuffer(Base):
     __tablename__ = 'rowbuffer'
-    id = Column(Integer, primary_key=True)
-    email = Column(String(50), ForeignKey('emaildata.email'))
-    uid = Column(String(50), nullable=False)
+    email = Column(String(50), ForeignKey('emaildata.email'), primary_key=True)
+    uid = Column(String(50), nullable=False, primary_key=True)
     msg = Column(LargeBinary, nullable=False)
-    status = Column(String(50), default='add', nullable=False)
+    status = Column(String(10), default='add', nullable=False)
 
     def __repr__(self):
         return f'buff id {self.id} for {self.email} : {self.uid} status {self.status}'

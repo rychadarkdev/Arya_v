@@ -7,6 +7,7 @@ from db import msgbuffer
 import config
 import db
 
+
 def connect(host: str, port: int) -> Optional[imaplib.IMAP4_SSL]:
     try:
         con = imaplib.IMAP4_SSL(host=host, port=port)

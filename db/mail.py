@@ -1,5 +1,6 @@
 import db
 from typing import Optional
+import logging
 
 
 def get_pass(mail: str) -> Optional[str]:
@@ -15,8 +16,9 @@ def add(mail: str, password: str) -> Optional[bool]:
         db.session.add(email)
         db.session.commit()
         return True
-    except:
+    except Exception as error:
         db.session.rollback()
+        logging.error(error)
 
 
 def delete(mail: str) -> Optional[bool]:
