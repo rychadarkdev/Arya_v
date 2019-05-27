@@ -1,9 +1,10 @@
-from sqlalchemy import create_engine, Column, String, Integer, Boolean, ForeignKey, LargeBinary
+from sqlalchemy import create_engine, Column, String, Integer, Boolean, ForeignKey, LargeBinary, PickleType
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm.session import Session as SesType
 import config
+from email.message import  Message
 
 
 engine: Engine = create_engine(config.DB_URL)
@@ -26,7 +27,7 @@ class RowBuffer(Base):
     __tablename__ = 'rowbuffer'
     email = Column(String(50), ForeignKey('emaildata.email'), primary_key=True)
     uid = Column(String(50), nullable=False, primary_key=True)
-    msg = Column(LargeBinary, nullable=False)
+    msg = Column(PickleType(), nullable=False)
     status = Column(String(10), default='add', nullable=False)
 
     def __repr__(self):
